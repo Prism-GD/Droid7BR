@@ -32,4 +32,4 @@ Executar um processo `qemu-system-aarch64` dentro do processo/ambiente permitido
 
 ## Estado
 
-A ponte JNI e o projeto CMake inicial existem. O QEMU ainda não está compilado nem integrado. O gerenciador de armazenamento cria discos RAW esparsos por instância; isso não equivale a uma imagem Android inicializável.
+A ponte JNI, o empacotamento ARM64, o probe de versão e o controlador de processo QEMU TCG foram adicionados. O GitHub Actions agora compila QEMU 11.1.2 para Android com uma receita fixada do projeto Podroid e empacota o binário e libslirp no APK. A compilação e a execução no aparelho ainda precisam passar pelo CI e por teste real. O controlador espera um kernel e initrd Android compatíveis com a placa virt; esses arquivos ainda não existem. O gerenciador de armazenamento cria discos RAW esparsos por instância.

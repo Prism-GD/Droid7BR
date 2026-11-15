@@ -1,10 +1,8 @@
 package br.com.prismgd.droid7br.vm
 
 /**
- * Contract for the Android guest runtime.
- *
- * The QEMU implementation will be added after the guest image format,
- * CPU architecture and Android-host execution strategy are validated.
+ * Contract for an Android guest runtime. QemuEngine implements the initial
+ * ARM64 TCG process backend; boot assets for Android 7.1.2 are still pending.
  */
 interface VmEngine {
     fun start(config: VmConfig, onStateChanged: (VmState) -> Unit)

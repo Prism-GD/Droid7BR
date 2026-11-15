@@ -117,8 +117,8 @@ private fun Droid7BRHome(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { }) {
-                                Text("Iniciar")
+                            Button(onClick = { }, enabled = false) {
+                                Text("Iniciar — em breve")
                             }
                             OutlinedButton(onClick = {
                                 machines.remove(machine)

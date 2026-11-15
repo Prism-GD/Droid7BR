@@ -3,7 +3,7 @@ package br.com.prismgd.droid7br.vm
 /**
  * JNI entry point for the native runtime.
  *
- * This library is only a bridge/test scaffold. It does not contain QEMU yet.
+ * This JNI library reports native bridge status. QEMU is packaged separately as an Android ARM64 executable.
  */
 object NativeRuntime {
     private val loaded: Boolean = try {

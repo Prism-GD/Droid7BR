@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.prismgd.droid7br.vm.DeviceCapabilities
 import br.com.prismgd.droid7br.vm.NativeRuntime
+import br.com.prismgd.droid7br.vm.QemuRuntime
 import br.com.prismgd.droid7br.vm.VmStorageManager
 import br.com.prismgd.droid7br.vm.VmConfig
 import org.json.JSONArray
@@ -65,6 +66,7 @@ private fun Droid7BRHome(
     val deviceCapabilities = remember { DeviceCapabilities.detect() }
     val context = LocalContext.current
     val storageManager = remember(context) { VmStorageManager(context) }
+    val qemuRuntime = remember(context) { QemuRuntime(context) }
     var storageMessage by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
     Surface(
@@ -98,7 +100,7 @@ private fun Droid7BRHome(
                 ) {
                     Text("Gerenciador de máquinas", style = MaterialTheme.typography.titleLarge)
                     Text("Crie instâncias independentes e mantenha cada configuração salva.")
-                    Text("Motor QEMU: ainda não integrado", color = MaterialTheme.colorScheme.error)
+                    Text("QEMU ARM64: ${if (qemuRuntime.isAvailable()) "Binário instalado" else "Aguardando compilação pelo GitHub Actions"}", color = if (qemuRuntime.isAvailable()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
                     Text("Camada nativa: ${NativeRuntime.engineStatus()}")
                 }
             }

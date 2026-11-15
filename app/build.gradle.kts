@@ -16,12 +16,18 @@ android {
         versionName = "0.1.0"
 
         ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 
     buildFeatures {
         compose = true
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     externalNativeBuild {

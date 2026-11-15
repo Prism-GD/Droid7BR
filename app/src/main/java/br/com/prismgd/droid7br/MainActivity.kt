@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.prismgd.droid7br.vm.DeviceCapabilities
+import br.com.prismgd.droid7br.vm.NativeRuntime
 import br.com.prismgd.droid7br.vm.VmConfig
 import org.json.JSONArray
 import org.json.JSONObject
@@ -92,7 +93,8 @@ private fun Droid7BRHome(
                 ) {
                     Text("Gerenciador de máquinas", style = MaterialTheme.typography.titleLarge)
                     Text("Crie instâncias independentes e mantenha cada configuração salva.")
-                    Text("Motor QEMU: em preparação", color = MaterialTheme.colorScheme.error)
+                    Text("Motor QEMU: ainda não integrado", color = MaterialTheme.colorScheme.error)
+                    Text("Camada nativa: ${NativeRuntime.engineStatus()}")
                 }
             }
 

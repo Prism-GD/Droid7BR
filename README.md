@@ -21,7 +21,7 @@ A interface da VM será semelhante à de um celular tradicional:
 ## 🧩 Recursos planejados
 
 - [ ] Aplicativo Android com interface em Kotlin e Jetpack Compose.
-- [ ] Integração com o motor de virtualização QEMU.
+- [ ] Validar o build e a execução do QEMU ARM64 (pipeline de compilação e controlador TCG adicionados).
 - [ ] Inicialização de uma imagem Android 7.1.2.
 - [ ] Integração de Google Apps (GApps) compatíveis com a imagem.
 - [ ] Acesso root dentro da VM por meio do Magisk.
@@ -41,7 +41,7 @@ A interface da VM será semelhante à de um celular tradicional:
 | GApps | Aplicativos e serviços Google compatíveis |
 | Magisk | Gerenciamento de root dentro da VM |
 
-A arquitetura da imagem convidada e o modo de execução do QEMU ainda precisam ser validados. O suporte a aceleração por hardware depende dos recursos disponíveis no dispositivo e no kernel; sem essa aceleração, a emulação pode ser bastante lenta.
+O QEMU ARM64 é compilado pelo GitHub Actions a partir do código-fonte e empacotado no APK. A execução e a compatibilidade do guest ainda precisam ser validadas; o kernel e o initrd Android 7.1.2 para a placa virtual ainda não foram produzidos. O suporte a aceleração por hardware depende dos recursos disponíveis no dispositivo e no kernel; sem essa aceleração, a emulação pode ser bastante lenta.
 
 ## 📱 Compatibilidade
 
@@ -53,7 +53,7 @@ GApps e Magisk precisam ser compatíveis com a versão e a arquitetura da imagem
 
 ## 🚧 Desenvolvimento
 
-O projeto está em fase de planejamento e estruturação. Recursos marcados como planejados ainda não devem ser considerados implementados.
+O projeto está em fase de protótipo. A integração do processo QEMU foi iniciada, mas a imagem Android convidada ainda não está pronta. Recursos marcados como planejados ainda não devem ser considerados implementados.
 
 ## 📄 Licença
 

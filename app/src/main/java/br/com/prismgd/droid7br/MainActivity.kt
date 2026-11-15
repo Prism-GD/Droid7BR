@@ -68,6 +68,7 @@ private fun Droid7BRHome(
     val storageManager = remember(context) { VmStorageManager(context) }
     val qemuRuntime = remember(context) { QemuRuntime(context) }
     var storageMessage by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+    var qemuProbeMessage by remember { androidx.compose.runtime.mutableStateOf("Teste ainda não executado.") }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -102,6 +103,17 @@ private fun Droid7BRHome(
                     Text("Crie instâncias independentes e mantenha cada configuração salva.")
                     Text("QEMU ARM64: ${if (qemuRuntime.isAvailable()) "Binário instalado" else "Aguardando compilação pelo GitHub Actions"}", color = if (qemuRuntime.isAvailable()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
                     Text("Camada nativa: ${NativeRuntime.engineStatus()}")
+                    OutlinedButton(onClick = {
+                        Thread({
+                            val result = qemuRuntime.version()
+                            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                qemuProbeMessage = result
+                            }
+                        }, "Droid7BR-QEMU-probe").start()
+                    }, enabled = qemuRuntime.isAvailable()) {
+                        Text("Testar QEMU")
+                    }
+                    Text(qemuProbeMessage, style = MaterialTheme.typography.bodySmall)
                 }
             }
 

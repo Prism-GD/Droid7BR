@@ -1,32 +1,45 @@
 package br.com.prismgd.droid7br
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import br.com.prismgd.droid7br.vm.VmConfig
+import org.json.JSONArray
+import org.json.JSONObject
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             Droid7BRTheme {
-                Droid7BRHome()
+                Droid7BRHome(
+                    initialMachines = loadMachines(this),
+                    onMachinesChanged = { saveMachines(this, it) }
+                )
             }
         }
     }
@@ -34,14 +47,18 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun Droid7BRTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = darkColorScheme(),
-        content = content
-    )
+    MaterialTheme(colorScheme = darkColorScheme(), content = content)
 }
 
 @Composable
-private fun Droid7BRHome() {
+private fun Droid7BRHome(
+    initialMachines: List<VmConfig>,
+    onMachinesChanged: (List<VmConfig>) -> Unit
+) {
+    val machines = remember {
+        mutableStateListOf<VmConfig>().apply { addAll(initialMachines) }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -49,17 +66,14 @@ private fun Droid7BRHome() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Droid7BR", style = MaterialTheme.typography.headlineLarge)
             Text(
-                text = "Droid7BR",
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Text(
-                text = "Seu Android virtual.",
+                "Seus celulares Android virtuais",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -71,57 +85,118 @@ private fun Droid7BRHome() {
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text(
-                        text = "Android 7.1.2 Nougat",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Text(
-                        text = "API 25 • GApps planejado • Magisk planejado"
-                    )
-                    Text(
-                        text = "A imagem do sistema ainda não foi integrada.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Text("Gerenciador de máquinas", style = MaterialTheme.typography.titleLarge)
+                    Text("Crie instâncias independentes e mantenha cada configuração salva.")
+                    Text("Motor QEMU: em preparação", color = MaterialTheme.colorScheme.error)
                 }
             }
 
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "Estado da máquina virtual",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = "QEMU ainda não configurado",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Text(
-                        text = "Nesta versão inicial, a tela do aplicativo já está preparada. A inicialização da VM será adicionada nas próximas etapas."
-                    )
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Minhas máquinas", style = MaterialTheme.typography.titleLarge)
+                Text("${machines.size} criada(s)", style = MaterialTheme.typography.labelLarge)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            machines.forEach { machine ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(machine.name, style = MaterialTheme.typography.titleMedium)
+                        Text("Android ${machine.androidVersion} • API ${machine.apiLevel}")
+                        Text("${machine.ramMb} MB RAM • ${machine.cpuCores} CPU • ${machine.storageGb} GB")
+                        Text(
+                            "Desligada • O sistema convidado ainda não foi conectado",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = { }) {
+                                Text("Iniciar")
+                            }
+                            OutlinedButton(onClick = {
+                                machines.remove(machine)
+                                onMachinesChanged(machines.toList())
+                            }) {
+                                Text("Excluir")
+                            }
+                        }
+                    }
+                }
+            }
 
             Button(
-                onClick = { },
-                enabled = false,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    val next = VmConfig(
+                        name = if (machines.isEmpty()) "Android Nougat" else "Android Nougat ${machines.size + 1}"
+                    )
+                    machines.add(next)
+                    onMachinesChanged(machines.toList())
+                }
             ) {
-                Text("Iniciar Android virtual — em desenvolvimento")
+                Text("＋ Criar celular virtual")
             }
 
             Text(
-                text = "Droid7BR • Versão 0.1.0",
+                "Primeira máquina planejada: Android 7.1.2 Nougat com GApps e Magisk.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                "Droid7BR • Protótipo do gerenciador",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
+}
+
+private fun loadMachines(context: Context): List<VmConfig> {
+    val stored = context.getSharedPreferences("droid7br", Context.MODE_PRIVATE)
+        .getString("machines", null) ?: return listOf(VmConfig())
+
+    return try {
+        val array = JSONArray(stored)
+        (0 until array.length()).map { index ->
+            val item = array.getJSONObject(index)
+            VmConfig(
+                id = item.optString("id"),
+                name = item.optString("name", "Android Nougat"),
+                androidVersion = item.optString("androidVersion", "7.1.2"),
+                apiLevel = item.optInt("apiLevel", 25),
+                ramMb = item.optInt("ramMb", 1536),
+                storageGb = item.optInt("storageGb", 8),
+                cpuCores = item.optInt("cpuCores", 2)
+            )
+        }
+    } catch (_: Exception) {
+        listOf(VmConfig())
+    }
+}
+
+private fun saveMachines(context: Context, machines: List<VmConfig>) {
+    val array = JSONArray()
+    machines.forEach { machine ->
+        array.put(
+            JSONObject().apply {
+                put("id", machine.id)
+                put("name", machine.name)
+                put("androidVersion", machine.androidVersion)
+                put("apiLevel", machine.apiLevel)
+                put("ramMb", machine.ramMb)
+                put("storageGb", machine.storageGb)
+                put("cpuCores", machine.cpuCores)
+            }
+        )
+    }
+    context.getSharedPreferences("droid7br", Context.MODE_PRIVATE)
+        .edit()
+        .putString("machines", array.toString())
+        .apply()
 }

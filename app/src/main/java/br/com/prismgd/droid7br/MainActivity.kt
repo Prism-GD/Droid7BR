@@ -25,10 +25,12 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.prismgd.droid7br.vm.DeviceCapabilities
 import br.com.prismgd.droid7br.vm.NativeRuntime
+import br.com.prismgd.droid7br.vm.VmStorageManager
 import br.com.prismgd.droid7br.vm.VmConfig
 import org.json.JSONArray
 import org.json.JSONObject
@@ -61,6 +63,9 @@ private fun Droid7BRHome(
         mutableStateListOf<VmConfig>().apply { addAll(initialMachines) }
     }
     val deviceCapabilities = remember { DeviceCapabilities.detect() }
+    val context = LocalContext.current
+    val storageManager = remember(context) { VmStorageManager(context) }
+    var storageMessage by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -136,6 +141,17 @@ private fun Droid7BRHome(
                         Text(machine.name, style = MaterialTheme.typography.titleMedium)
                         Text("Android ${machine.androidVersion} • API ${machine.apiLevel}")
                         Text("${machine.ramMb} MB RAM • ${machine.cpuCores} CPU • ${machine.storageGb} GB")
+                        Text(if (storageManager.hasDisk(machine)) "Disco RAW preparado" else "Disco virtual ainda não criado")
+                        OutlinedButton(onClick = {
+                            storageMessage = try {
+                                val disk = storageManager.prepareDisk(machine)
+                                "Disco preparado: ${disk.name} (${machine.storageGb} GB virtuais)."
+                            } catch (error: Exception) {
+                                "Falha ao preparar disco: ${error.message ?: "erro desconhecido"}"
+                            }
+                        }) {
+                            Text("Preparar armazenamento")
+                        }
                         Text(
                             "Desligada • O sistema convidado ainda não foi conectado",
                             style = MaterialTheme.typography.bodySmall,
@@ -146,6 +162,7 @@ private fun Droid7BRHome(
                                 Text("Iniciar — em breve")
                             }
                             OutlinedButton(onClick = {
+                                storageManager.deleteMachineStorage(machine)
                                 machines.remove(machine)
                                 onMachinesChanged(machines.toList())
                             }) {
@@ -167,6 +184,10 @@ private fun Droid7BRHome(
                 }
             ) {
                 Text("＋ Criar celular virtual")
+            }
+
+            storageMessage?.let { message ->
+                Text(message, style = MaterialTheme.typography.bodySmall)
             }
 
             Text(

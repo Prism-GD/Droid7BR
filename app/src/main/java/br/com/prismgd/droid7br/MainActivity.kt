@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import br.com.prismgd.droid7br.vm.DeviceCapabilities
 import br.com.prismgd.droid7br.vm.VmConfig
 import org.json.JSONArray
 import org.json.JSONObject
@@ -58,6 +59,7 @@ private fun Droid7BRHome(
     val machines = remember {
         mutableStateListOf<VmConfig>().apply { addAll(initialMachines) }
     }
+    val deviceCapabilities = remember { DeviceCapabilities.detect() }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -91,6 +93,27 @@ private fun Droid7BRHome(
                     Text("Gerenciador de máquinas", style = MaterialTheme.typography.titleLarge)
                     Text("Crie instâncias independentes e mantenha cada configuração salva.")
                     Text("Motor QEMU: em preparação", color = MaterialTheme.colorScheme.error)
+                }
+            }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text("Compatibilidade do aparelho", style = MaterialTheme.typography.titleMedium)
+                    Text("Arquitetura: ${deviceCapabilities.primaryAbi}")
+                    Text("ARM64: ${if (deviceCapabilities.isArm64) "Sim" else "Não"}")
+                    Text("Dispositivo KVM: ${if (deviceCapabilities.kvmDevicePresent) "Encontrado" else "Não encontrado"}")
+                    Text(
+                        "Acesso ao KVM pelo app: ${if (deviceCapabilities.kvmLikelyUsableByApp) "Possível (ainda precisa ser validado pelo QEMU)" else "Não disponível"}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        "Se não houver KVM acessível, será necessário avaliar QEMU por emulação de software.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
 
